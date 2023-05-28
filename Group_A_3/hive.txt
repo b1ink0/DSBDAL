@@ -1,0 +1,28 @@
+hive
+show databases;
+
+create table if not exists flightinfo2007new(Year SMALLINT,Month TINYINT,DayofMonth TINYINT,DayOfWeek TINYINT,DepTime SMALLINT,CRSDepTime SMALLINT,ArrTime SMALLINT,CRSArrTime SMALLINT,UniqueCarrier STRING,FlightNum STRING,TailNum STRING,ActualElapsedTime SMALLINT,CRSElapsedTime SMALLINT,AirTime SMALLINT,ArrDelay SMALLINT,DepDelay SMALLINT,Origin STRING,Dest STRING,Distance INT,TaxiIn SMALLINT,TaxiOut SMALLINT,Cancelled SMALLINT,CancellationCode STRING,Diverted SMALLINT,CarrierDelay SMALLINT,WeatherDelay SMALLINT,NASDelay SMALLINT,SecurityDelay SMALLINT,LateAircraftDelay SMALLINT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' STORED AS TEXTFILE;
+
+load data local inpath "/home/cloudera/Downloads/2007m.csv" into table flightinfo2007new;
+
+CREATE TABLE IF NOT EXISTS FLIGHTINFO2008new LIKE  FLIGHTINFO2007new;
+
+load data local inpath "/home/cloudera/Downloads/2008m.csv" into table flightinfo2008new;
+
+create table view07new as select Year,Month,DayofMonth,DayOfWeek,DepTime from flightinfo2007new where TaxiIn=3;
+
+select * from view07new;
+
+create table view08new as select Year,Month,DayofMonth,DayOfWeek,DepTime from flightinfo2008new where TaxiIn=3;
+
+select * from view08new;
+
+select m7.Year,m7.Month,m7.DayofMonth,m7.DayOfWeek,m7.DepTime,m8.Year,m8.Month,m8.DayofMonth,m8.DayOfWeek,m8.DepTime from viewo7new m7 FULL OUTER JOIN view08new m8 ON m7.Month=m8.MOnth;
+
+create index abc_index on table view08new(month) as "compact" with deferred rebuild;
+
+show indexes on view07new;
+
+create view  avgdepdelay as select dayofweek,avg(depdelay) from flightinfo2008new group by dayofweek;
+
+select * from avgdepdelay;
